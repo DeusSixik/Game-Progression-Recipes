@@ -12,6 +12,9 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(RecipeCacheLookupMonitor.class)
 public abstract class MixinRecipeCacheLookupMonitor<RECIPE extends MekanismRecipe<?>> implements ICachedRecipeHolder<RECIPE>, IContentsListener {
@@ -22,19 +25,22 @@ public abstract class MixinRecipeCacheLookupMonitor<RECIPE extends MekanismRecip
 
     @Shadow
     @Final
-    protected int cacheIndex;
-
-    @Shadow
-    @Final
     private IRecipeLookupHandler<RECIPE> handler;
 
-    @Shadow
-    protected boolean shouldUnpause;
+    @Inject(method = "updateAndProcess()Z", at = @At(value = "INVOKE", target = "Lmekanism/common/recipe/lookup/monitor/RecipeCacheLookupMonitor;getUpdatedCache(I)Lmekanism/api/recipes/cache/CachedRecipe;", shift = At.Shift.AFTER), cancellable = true)
+    public void gpr$updateAndProcess(CallbackInfoReturnable<Boolean> cir) {
+        if(cachedRecipe != null && handler instanceof BlockEntity entity) {
+            final RECIPE cacheRecipe = cachedRecipe.getRecipe();
+
+            if(!RecipeStageUtils.isUnlocked(entity, cacheRecipe))
+                cir.setReturnValue(false);
+        }
+    }
 
     /**
      * @author Sixik
      * @reason
-     */
+     *//*
     @Overwrite
     public boolean updateAndProcess() {
         CachedRecipe<RECIPE> oldCache = this.cachedRecipe;
@@ -62,5 +68,5 @@ public abstract class MixinRecipeCacheLookupMonitor<RECIPE extends MekanismRecip
         } else {
             return false;
         }
-    }
+    }*/
 }

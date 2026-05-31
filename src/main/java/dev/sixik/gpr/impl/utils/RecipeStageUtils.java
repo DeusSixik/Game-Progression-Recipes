@@ -81,11 +81,11 @@ public class RecipeStageUtils {
             List<T> inputRecipes, UUID player,
             int predicateType
     ) {
-        ObjectArrayList<Recipe<?>> outputRecipes = new ObjectArrayList<>();
+        ObjectArrayList<T> outputRecipes = new ObjectArrayList<>();
         switch (predicateType) {
             case 0: {
                 for (int i = 0; i < inputRecipes.size(); i++) {
-                    Recipe<?> recipe = inputRecipes.get(i);
+                    T recipe = inputRecipes.get(i);
                     if (isUnlocked(player, recipe)) {
                         outputRecipes.add(recipe);
                     }
@@ -157,6 +157,8 @@ public class RecipeStageUtils {
     }
 
     public static boolean isUnlocked(UUID player, RecipeHolder<? extends Recipe<?>> recipeHolder) {
+        if(recipeHolder == null) return false;
+
         return isUnlocked(player, recipeHolder.value());
     }
 

@@ -76,6 +76,25 @@ public class RecipeStageUtils {
         return outputRecipes;
     }
 
+    public static <T extends Recipe<?>> List<T> filterRecipesValue(
+            List<T> inputRecipes, UUID player,
+            int predicateType
+    ) {
+        ObjectArrayList<Recipe<?>> outputRecipes = new ObjectArrayList<>();
+        switch (predicateType) {
+            case 0: {
+                for (int i = 0; i < inputRecipes.size(); i++) {
+                    Recipe<?> recipe = inputRecipes.get(i);
+                    if (isUnlocked(player, recipe)) {
+                        outputRecipes.add(recipe);
+                    }
+                }
+            }
+        }
+
+        return outputRecipes;
+    }
+
     public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> filterRecipes(
             Collection<RecipeHolder<T>> original, UUID player
     ) {
@@ -102,13 +121,16 @@ public class RecipeStageUtils {
         return result;
     }
 
-
     public static boolean isUnlocked(BlockEntity block, RecipeHolder<? extends Recipe<?>> recipeHolder) {
+        return isUnlocked(block, recipeHolder.value());
+    }
+
+    public static boolean isUnlocked(BlockEntity block, Recipe<?> recipeHolder) {
         if (block == null || recipeHolder == null) {
             return false;
         }
 
-        RecipeType<?> recipeType = recipeHolder.value().getType();
+        RecipeType<?> recipeType = recipeHolder.getType();
         if (!hasRestriction(recipeType)) {
             return true;
         }
@@ -132,11 +154,15 @@ public class RecipeStageUtils {
     }
 
     public static boolean isUnlocked(UUID player, RecipeHolder<? extends Recipe<?>> recipeHolder) {
+        return isUnlocked(player, recipeHolder.value());
+    }
+
+    public static boolean isUnlocked(UUID player, Recipe<?> recipeHolder) {
         if (recipeHolder == null) {
             return false;
         }
 
-        RecipeType<?> recipeType = recipeHolder.value().getType();
+        RecipeType<?> recipeType = recipeHolder.getType();
         if (!hasRestriction(recipeType)) {
             return true;
         }

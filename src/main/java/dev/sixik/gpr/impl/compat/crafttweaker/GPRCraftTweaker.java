@@ -25,11 +25,21 @@ public class GPRCraftTweaker {
 
     @ZenCodeType.Method
     public static void addRecipe(String stage, String recipeType, String[] recipes) {
-        RecipeStages.addRecipe(stage, BuiltInRegistries.RECIPE_TYPE.get(ResourceLocation.tryParse(recipeType)), recipes);
+        RecipeStages.addRecipe(stage, resolveRecipeType(recipeType), recipes);
     }
 
     @ZenCodeType.Method
     public static void addRecipe(String stage, String recipeType, ResourceLocation[] recipes) {
-        RecipeStages.addRecipe(stage, BuiltInRegistries.RECIPE_TYPE.get(ResourceLocation.tryParse(recipeType)), recipes);
+        RecipeStages.addRecipe(stage, resolveRecipeType(recipeType), recipes);
+    }
+
+    private static net.minecraft.world.item.crafting.RecipeType<?> resolveRecipeType(String recipeType) {
+        ResourceLocation recipeTypeId = ResourceLocation.tryParse(recipeType);
+        if (recipeTypeId == null) {
+            throw new IllegalArgumentException("Invalid recipe type id '" + recipeType + "'");
+        }
+
+        return BuiltInRegistries.RECIPE_TYPE.getOptional(recipeTypeId)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown recipe type '" + recipeType + "'"));
     }
 }

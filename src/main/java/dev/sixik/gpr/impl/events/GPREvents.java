@@ -3,6 +3,7 @@ package dev.sixik.gpr.impl.events;
 import dev.sixik.gpf.api.event.StageRegisterEvent;
 import dev.sixik.gpf.api.event.StageRegisterFinalizeEvent;
 import dev.sixik.gpr.api.BlockEntityOwner;
+import dev.sixik.gpr.impl.network.GPRNetworking;
 import dev.sixik.gpr.impl.registry.GPRRegistry;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -21,6 +22,7 @@ public class GPREvents {
     @SubscribeEvent
     public static void onStageRegisterFinalizeEvent(StageRegisterFinalizeEvent event) {
         GPRRegistry.INSTANCE.registerData();
+        GPRNetworking.syncRestrictionsToAllPlayers();
     }
 
     @SubscribeEvent

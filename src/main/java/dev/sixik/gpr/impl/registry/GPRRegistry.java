@@ -32,6 +32,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public class GPRRegistry {
 
     public static GPRRegistry INSTANCE = new GPRRegistry();
@@ -42,7 +44,7 @@ public class GPRRegistry {
     private short[] knowStages;
     private Int2ShortOpenHashMap recipeByStage = new Int2ShortOpenHashMap();
 
-    private GPRRegistry() {}
+    public GPRRegistry() {}
 
     public void clearData() {
         pendingData.clear();
@@ -66,9 +68,10 @@ public class GPRRegistry {
             for (RecipeRestrictionRawData pending : pendingData) {
                 short stageId = resolveStageId(pending.stage());
                 knowStagesList.add(stageId);
-                int targetId = resolveTargetId(pending);
-                long key = createKey(pending.registerType().getId(), targetId, stageId);
-                IntLinkedOpenHashSet recipeIds = mergedRecipes.computeIfAbsent(key, ignored -> new IntLinkedOpenHashSet());
+                int blockTargetId = pending.registerType() == RecipeRegisterType.BY_BLOCK
+                        ? resolveBlockTargetId(pending)
+                        : RecipeRestrictionData.NO_BLOCK_ID;
+                int declaredRecipeTypeId = resolveDeclaredRecipeTypeId(pending);
 
                 for (ResourceLocation recipeId : pending.recipes()) {
                     int recipeIndex = managerExtern.getRecipeIndex(recipeId);
@@ -88,6 +91,20 @@ public class GPRRegistry {
                     }
 
                     int recipeTypeIndex = RecipeTypeIndex.get(holder.value().getType()).gpr$getIndex();
+                    if (declaredRecipeTypeId != RecipeRestrictionData.NO_BLOCK_ID && declaredRecipeTypeId != recipeTypeIndex) {
+                        String errorMessage = "Recipe '" + recipeId + "' has type index " + recipeTypeIndex +
+                                ", but restriction declared type index " + declaredRecipeTypeId;
+                        GameProgressionRecipes.LOGGER.error(errorMessage);
+                        NeoForge.EVENT_BUS.post(new RegisterRestrictionErrorEvent(errorMessage));
+                        return;
+                    }
+
+                    int targetId = pending.registerType() == RecipeRegisterType.BY_BLOCK
+                            ? blockTargetId
+                            : recipeTypeIndex;
+                    long key = createKey(pending.registerType().getId(), targetId, stageId);
+                    IntLinkedOpenHashSet recipeIds = mergedRecipes.computeIfAbsent(key, ignored -> new IntLinkedOpenHashSet());
+
                     restrictedTypeIndices.add(recipeTypeIndex);
                     if (pending.registerType() == RecipeRegisterType.BY_RECIPE_TYPE) {
                         recipeByStage.put(recipeIndex, stageId);
@@ -165,6 +182,53 @@ public class GPRRegistry {
         return restrictions;
     }
 
+    public List<RecipeRestrictionData> createRestrictionSnapshot() {
+        return List.copyOf(restrictions.values());
+    }
+
+    public void applySyncedRestrictions(List<RecipeRestrictionData> syncedRestrictions) {
+        restrictions.clear();
+
+        Int2ShortOpenHashMap syncedRecipeByStage = new Int2ShortOpenHashMap();
+        syncedRecipeByStage.defaultReturnValue((short) -1);
+        IntOpenHashSet restrictedTypeIndices = new IntOpenHashSet();
+        ShortLinkedOpenHashSet stages = new ShortLinkedOpenHashSet();
+
+        for (RecipeRestrictionData restriction : syncedRestrictions) {
+            short stageId = restriction.stage();
+            stages.add(stageId);
+            long key = createRestrictionKey(restriction);
+            restrictions.put(key, restriction);
+
+            if (restriction.registerType() == RecipeRegisterType.BY_RECIPE_TYPE.getId()) {
+                int[] packedData = restriction.recipeData();
+                if (packedData.length >= 2) {
+                    restrictedTypeIndices.add(packedData[0]);
+
+                    int recipeCount = packedData[1];
+                    for (int i = 0; i < recipeCount; i++) {
+                        syncedRecipeByStage.put(packedData[2 + i], stageId);
+                    }
+                }
+            } else if (restriction.registerType() == RecipeRegisterType.BY_BLOCK.getId()) {
+                IntOpenHashSet recipeTypeIndices = new IntOpenHashSet();
+
+                for (int recipeId : flattenRestrictionRecipes(restriction)) {
+                    RecipeHolder<?> holder = RecipeManagerExtern.get(GPRecipeRegisterHelper.getRecipeManager()).getRecipeHolderByIndex(recipeId);
+                    if (holder != null) {
+                        recipeTypeIndices.add(RecipeTypeIndex.get(holder.value().getType()).gpr$getIndex());
+                    }
+                }
+
+                restrictedTypeIndices.addAll(recipeTypeIndices);
+            }
+        }
+
+        recipeByStage = syncedRecipeByStage;
+        knowStages = stages.toShortArray();
+        applyRecipeTypesSupports(restrictedTypeIndices);
+    }
+
     public static long createKey(RecipeRegisterType type, BlockEntity blockEntity, short stage) {
         return createKey(type, blockEntity.getType(), stage);
     }
@@ -235,25 +299,24 @@ public class GPRRegistry {
         throw new IllegalArgumentException("Unsupported stage object: " + rawStage);
     }
 
-    private int resolveTargetId(RecipeRestrictionRawData pending) {
-        return switch (pending.registerType()) {
-            case BY_BLOCK -> {
-                BlockEntityType<?> blockType = pending.block();
-                if (blockType == null) {
-                    throw new IllegalArgumentException("Block restriction requires a block entity type");
-                }
+    private int resolveBlockTargetId(RecipeRestrictionRawData pending) {
+        BlockEntityType<?> blockType = pending.block();
+        if (blockType == null) {
+            throw new IllegalArgumentException("Block restriction requires a block entity type");
+        }
 
-                yield BlockEntityTypeIndex.get(blockType).gpr$getIndex();
-            }
-            case BY_RECIPE_TYPE -> {
-                RecipeType<?> recipeType = pending.recipeType();
-                if (recipeType == null) {
-                    throw new IllegalArgumentException("Recipe type restriction requires a recipe type");
-                }
+        return BlockEntityTypeIndex.get(blockType).gpr$getIndex();
+    }
 
-                yield RecipeTypeIndex.get(recipeType).gpr$getIndex();
-            }
-        };
+    private int resolveDeclaredRecipeTypeId(RecipeRestrictionRawData pending) {
+        if (pending.registerType() != RecipeRegisterType.BY_RECIPE_TYPE) {
+            return RecipeRestrictionData.NO_BLOCK_ID;
+        }
+
+        RecipeType<?> recipeType = pending.recipeType();
+        return recipeType == null
+                ? RecipeRestrictionData.NO_BLOCK_ID
+                : RecipeTypeIndex.get(recipeType).gpr$getIndex();
     }
 
     private static byte getRegisterTypeId(long key) {
@@ -290,5 +353,34 @@ public class GPRRegistry {
         }
 
         return false;
+    }
+
+    private static long createRestrictionKey(RecipeRestrictionData restriction) {
+        if (restriction.registerType() == RecipeRegisterType.BY_BLOCK.getId()) {
+            return createKey(restriction.registerType(), restriction.blockId(), restriction.stage());
+        }
+
+        int[] packedData = restriction.recipeData();
+        int recipeTypeIndex = packedData.length == 0 ? RecipeRestrictionData.NO_BLOCK_ID : packedData[0];
+        return createKey(restriction.registerType(), recipeTypeIndex, restriction.stage());
+    }
+
+    private static int[] flattenRestrictionRecipes(RecipeRestrictionData restriction) {
+        IntLinkedOpenHashSet recipeIds = new IntLinkedOpenHashSet();
+        int[] packedData = restriction.recipeData();
+        int pointer = 0;
+
+        while (pointer < packedData.length) {
+            pointer++;
+            int recipeCount = packedData[pointer++];
+
+            for (int i = 0; i < recipeCount; i++) {
+                recipeIds.add(packedData[pointer + i]);
+            }
+
+            pointer += recipeCount;
+        }
+
+        return recipeIds.toIntArray();
     }
 }

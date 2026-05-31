@@ -2,6 +2,7 @@ package dev.sixik.gpr;
 
 import com.mojang.logging.LogUtils;
 import dev.sixik.gpr.impl.events.GPRDebugEvents;
+import dev.sixik.gpr.impl.network.GPRNetworking;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
@@ -17,6 +18,8 @@ public class GameProgressionRecipes
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public GameProgressionRecipes(IEventBus modEventBus, ModContainer modContainer) {
+        modEventBus.addListener(GPRNetworking::register);
+        NeoForge.EVENT_BUS.addListener(GPRNetworking::onDatapackSync);
 
         if(!FMLEnvironment.production) {
             NeoForge.EVENT_BUS.register(new GPRDebugEvents());

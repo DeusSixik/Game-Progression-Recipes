@@ -1,6 +1,7 @@
 package dev.sixik.gpr.impl.utils;
 
 import dev.sixik.gpf.api.Stages;
+import dev.sixik.gpr.GameProgressionRecipes;
 import dev.sixik.gpr.api.BlockEntityOwner;
 import dev.sixik.gpr.api.RecipeIndex;
 import dev.sixik.gpr.api.RecipeTypeSupport;
@@ -14,10 +15,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class RecipeStageUtils {
 
@@ -206,4 +204,34 @@ public class RecipeStageUtils {
         return isUnlocked(blockEntity, recipe) ? recipe : null;
     }
 
+    public static boolean canCast(Class<?> obj, Class<?> caster){
+        try {
+            if(obj.equals(caster)) return true;
+
+            List<Class<?>> d1 = getParent(obj);
+            if(d1.contains(caster)) return true;
+
+            d1 = getParent(caster);
+            if(d1.contains(obj)) return true;
+        } catch (Exception e){
+            GameProgressionRecipes.LOGGER.error("Error while casting", e);
+        }
+        return false;
+    }
+
+    public static ObjectArrayList<Class<?>> getParent(Class<?> obj){
+        ObjectArrayList<Class<?>> classes = new ObjectArrayList<>();
+
+        for (Class<?> anInterface : obj.getInterfaces()) {
+            classes.add(anInterface);
+            classes.addAll(getParent(anInterface));
+        }
+
+        if(obj.getSuperclass() != null){
+            classes.add(obj.getSuperclass());
+            classes.addAll(getParent(obj.getSuperclass()));
+        }
+
+        return classes;
+    }
 }

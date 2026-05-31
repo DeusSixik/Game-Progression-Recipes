@@ -3,6 +3,8 @@ package dev.sixik.gpr.impl.mixin.data.gpf;
 import dev.sixik.gpf.data.BaseBitStageData;
 import dev.sixik.gpf.impl.client.ClientStageData;
 import dev.sixik.gpr.impl.events.GPRClientEvents;
+import dev.sixik.gpr.impl.events.custom.StageSyncOnClientEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

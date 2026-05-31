@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.sixik.gpr.impl.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "data.vanilla.MixinBlockEntity$owner_support",
+    "data.vanilla.MixinBlockEntityType",
+    "data.vanilla.MixinRecipe",
+    "data.vanilla.MixinRecipeHolder",
+    "data.vanilla.MixinRecipeManager",
+    "data.vanilla.MixinRecipeType",
+    "recipes.vanilla.MixinAbstractFurnaceBlockEntity"
+  ],
+  "client": [
+    "data.gpf.MixinClientStageData$sync_data_hook"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

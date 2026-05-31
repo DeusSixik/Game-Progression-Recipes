@@ -41,9 +41,9 @@ public class RecipeStageUtils {
     }
 
     public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> filterRecipes(
-            Collection<RecipeHolder<T>> original, BlockEntity player
+            Collection<RecipeHolder<T>> original, BlockEntity block
     ) {
-        return filterRecipes(original, BlockEntityOwner.get(player).gpr$getOwner(), 0);
+        return filterRecipes(original, BlockEntityOwner.get(block).gpr$getOwner(), 0);
     }
 
     public static List<RecipeHolder<? extends Recipe<?>>> filterRecipes(
@@ -105,6 +105,8 @@ public class RecipeStageUtils {
     public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> filterRecipes(
             Collection<RecipeHolder<T>> original, UUID player, int predicateType
     ) {
+        if(original == null) return null;
+
         final int size = original.size();
         if (size == 0) return Collections.emptyList();
 

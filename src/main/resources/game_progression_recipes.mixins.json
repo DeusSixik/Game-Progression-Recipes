@@ -54,6 +54,7 @@
     "recipes.mods.immersive_engineering.multiblocks.logic.MixinRefineryLogic$State",
     "recipes.mods.immersive_engineering.multiblocks.logic.MixinSqueezerLogic",
     "recipes.mods.immersive_engineering.multiblocks.logic.MixinSqueezerLogic$State",
+    "recipes.mods.mekanism.MixinRecipeCacheLookupMonitor",
     "recipes.vanilla.MixinAbstractFurnaceBlockEntity",
     "recipes.vanilla.MixinCampfireBlockEntity",
     "recipes.vanilla.MixinCraftingMenu",

@@ -1,5 +1,6 @@
 package dev.sixik.gpr.impl.mixin.recipes.vanilla;
 
+import dev.sixik.gpr.impl.utils.RecipeStageUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -22,7 +23,12 @@ public abstract class MixinAbstractFurnaceBlockEntity extends BaseContainerBlock
     }
 
     @Inject(method = "serverTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity;getMaxStackSize()I"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
-    private static void sdm$serverTick(Level p_155014_, BlockPos p_155015_, BlockState p_155016_, AbstractFurnaceBlockEntity p_155017_, CallbackInfo ci, boolean flag, boolean flag1, ItemStack itemstack, ItemStack itemstack1, boolean flag2, boolean flag3, RecipeHolder recipeholder){
-
+    private static void sdm$serverTick(Level p_155014_, BlockPos p_155015_,
+                                       BlockState p_155016_, AbstractFurnaceBlockEntity blockEntity,
+                                       CallbackInfo ci, boolean flag, boolean flag1, ItemStack itemstack,
+                                       ItemStack itemstack1, boolean flag2, boolean flag3, RecipeHolder recipeholder){
+        if(!RecipeStageUtils.isUnlocked(blockEntity, recipeholder)) {
+            ci.cancel();
+        }
     }
 }

@@ -2,6 +2,8 @@ package dev.sixik.gpr.impl.mixin.data.vanilla;
 
 import dev.sixik.gpr.api.RecipeIndex;
 import dev.sixik.gpr.api.RecipeManagerExtern;
+import dev.sixik.gpr.impl.utils.GPRecipeRegisterHelper;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -40,6 +42,11 @@ public class MixinRecipeManager implements RecipeManagerExtern {
 
     @Unique
     private volatile ResourceLocation[] recipeIdsCache;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void gpr$init(HolderLookup.Provider registries, CallbackInfo ci) {
+        GPRecipeRegisterHelper.setRecipeManager((RecipeManager) (Object) this);
+    }
 
     @Override
     public RecipeHolder[] getRecipeHoldersRaw() {

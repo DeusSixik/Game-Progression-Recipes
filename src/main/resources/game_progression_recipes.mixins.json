@@ -10,6 +10,7 @@
     "data.vanilla.MixinRecipeHolder",
     "data.vanilla.MixinRecipeManager",
     "data.vanilla.MixinRecipeType",
+    "recipes.mods.assembly_table.MixinAssemblyTableBlockEntity",
     "recipes.vanilla.MixinAbstractFurnaceBlockEntity",
     "recipes.vanilla.MixinCampfireBlockEntity",
     "recipes.vanilla.MixinCraftingMenu",

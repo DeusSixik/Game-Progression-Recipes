@@ -39,6 +39,12 @@ public class RecipeStageUtils {
         return filterRecipes(original, getPlayerId(player), 0);
     }
 
+    public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> filterRecipes(
+            Collection<RecipeHolder<T>> original, BlockEntity player
+    ) {
+        return filterRecipes(original, BlockEntityOwner.get(player).gpr$getOwner(), 0);
+    }
+
     public static List<RecipeHolder<? extends Recipe<?>>> filterRecipes(
             List<RecipeHolder<? extends Recipe<?>>> inputRecipes, Player player
     ) {

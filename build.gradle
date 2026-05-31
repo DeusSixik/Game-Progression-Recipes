@@ -131,6 +131,8 @@ dependencies {
     annotationProcessor ctDep
 
     implementation "com.github.DeusSixik:Game-Progression-Framework:${gpf_version}"
+
+    compileOnly "curse.maven:assembler-table-1557940:8166561"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

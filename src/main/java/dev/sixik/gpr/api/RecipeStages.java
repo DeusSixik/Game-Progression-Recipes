@@ -1,6 +1,5 @@
 package dev.sixik.gpr.api;
 
-import dev.sixik.gpf.api.Stages;
 import dev.sixik.gpr.api.restriction_collector.RecipeRestrictionRawData;
 import dev.sixik.gpr.impl.registry.GPRRegistry;
 import net.minecraft.resources.ResourceLocation;

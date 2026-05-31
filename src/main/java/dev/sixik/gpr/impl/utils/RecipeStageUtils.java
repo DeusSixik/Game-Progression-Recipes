@@ -9,9 +9,12 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,9 +33,27 @@ public class RecipeStageUtils {
         return RecipeTypeSupport.get(recipeType).gpr$hasRestrictions();
     }
 
+    public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> filterRecipes(
+            Collection<RecipeHolder<T>> original, Player player
+    ) {
+        return filterRecipes(original, getPlayerId(player), 0);
+    }
+
+    public static List<RecipeHolder<? extends Recipe<?>>> filterRecipes(
+            List<RecipeHolder<? extends Recipe<?>>> inputRecipes, Player player
+    ) {
+        return filterRecipes(inputRecipes, getPlayerId(player), 0);
+    }
+
+    public static List<RecipeHolder<? extends Recipe<?>>> filterRecipes(
+            List<RecipeHolder<? extends Recipe<?>>> inputRecipes, UUID player
+    ) {
+        return filterRecipes(inputRecipes, player, 0);
+    }
+
     public static List<RecipeHolder<? extends Recipe<?>>> filterRecipes(
             List<RecipeHolder<? extends Recipe<?>>> inputRecipes, UUID player,
-            byte predicateType
+            int predicateType
     ) {
         ObjectArrayList<RecipeHolder<? extends Recipe<?>>> outputRecipes = new ObjectArrayList<>();
         switch (predicateType) {
@@ -48,6 +69,33 @@ public class RecipeStageUtils {
 
         return outputRecipes;
     }
+
+    public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> filterRecipes(
+            Collection<RecipeHolder<T>> original, UUID player
+    ) {
+        return filterRecipes(original, player, 0);
+    }
+
+    public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> filterRecipes(
+            Collection<RecipeHolder<T>> original, UUID player, int predicateType
+    ) {
+        final int size = original.size();
+        if (size == 0) return Collections.emptyList();
+
+        final List<RecipeHolder<T>> result = new ObjectArrayList<>(size);
+        switch (predicateType) {
+            case 0: {
+                for (final RecipeHolder<T> holder : original) {
+                    if (isUnlocked(player, holder)) {
+                        result.add(holder);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
 
     public static boolean isUnlocked(BlockEntity block, RecipeHolder<? extends Recipe<?>> recipeHolder) {
         if (block == null || recipeHolder == null) {
@@ -71,6 +119,10 @@ public class RecipeStageUtils {
 
         UUID ownerId = BlockEntityOwner.get(block).gpr$getOwner();
         return ownerId != null && isOwnerHaveStage(ownerId, requiredStages);
+    }
+
+    public static boolean isUnlocked(Player player, RecipeHolder<? extends Recipe<?>> recipeHolder) {
+        return isUnlocked(getPlayerId(player), recipeHolder);
     }
 
     public static boolean isUnlocked(UUID player, RecipeHolder<? extends Recipe<?>> recipeHolder) {

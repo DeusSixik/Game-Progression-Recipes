@@ -10,7 +10,10 @@
     "data.vanilla.MixinRecipeHolder",
     "data.vanilla.MixinRecipeManager",
     "data.vanilla.MixinRecipeType",
-    "recipes.vanilla.MixinAbstractFurnaceBlockEntity"
+    "recipes.vanilla.MixinAbstractFurnaceBlockEntity",
+    "recipes.vanilla.MixinCampfireBlockEntity",
+    "recipes.vanilla.MixinCraftingMenu",
+    "recipes.vanilla.MixinStonecutterMenu"
   ],
   "client": [
     "data.gpf.MixinClientStageData$sync_data_hook"

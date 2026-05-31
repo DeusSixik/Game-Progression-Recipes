@@ -137,6 +137,10 @@ dependencies {
     compileOnly "curse.maven:alchemistry-neohaul-1545569:8108461"
     compileOnly "curse.maven:alchemylib-neohaul-1546202:8105061"
     compileOnly "curse.maven:chemlib-neohaul-1546158:8104942"
+
+    compileOnly "curse.maven:draconic-evolution-223565:7584459"
+    compileOnly "curse.maven:brandons-core-231382:7130990"
+    compileOnly "curse.maven:codechicken-lib-1-8-242818:7281427"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

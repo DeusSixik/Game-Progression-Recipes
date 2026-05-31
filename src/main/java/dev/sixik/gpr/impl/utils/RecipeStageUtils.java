@@ -12,6 +12,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -195,4 +196,10 @@ public class RecipeStageUtils {
     public static boolean isOwnerHaveStage(UUID playerId, short[] stageId) {
         return Stages.hasStages(playerId, stageId);
     }
+
+    @Nullable
+    public static <T extends RecipeHolder<? extends Recipe<?>>> T ifCanProcessReturnRecipeOrNull(BlockEntity blockEntity, T recipe) {
+        return isUnlocked(blockEntity, recipe) ? recipe : null;
+    }
+
 }

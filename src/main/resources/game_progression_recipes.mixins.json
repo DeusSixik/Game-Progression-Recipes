@@ -18,6 +18,7 @@
     "recipes.mods.alchemistry.MixinFusionControllerBlockEntity",
     "recipes.mods.alchemistry.MixinLiquifierBlockEntity",
     "recipes.mods.assembly_table.MixinAssemblyTableBlockEntity",
+    "recipes.mods.draconic_evolution.MixinTileFusionCraftingCore",
     "recipes.vanilla.MixinAbstractFurnaceBlockEntity",
     "recipes.vanilla.MixinCampfireBlockEntity",
     "recipes.vanilla.MixinCraftingMenu",

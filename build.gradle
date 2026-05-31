@@ -144,6 +144,11 @@ dependencies {
 
     compileOnly "curse.maven:electrodynamics-316867:7427042"
     compileOnly "curse.maven:voltaic-api-1237904:7397445"
+
+    // Applied Energistics
+    compileOnly "curse.maven:glodium-957920:5821676"
+    compileOnly "curse.maven:ex-pattern-provider-892005:8025439"
+    compileOnly "curse.maven:applied-energistics-2-223794:7027323"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

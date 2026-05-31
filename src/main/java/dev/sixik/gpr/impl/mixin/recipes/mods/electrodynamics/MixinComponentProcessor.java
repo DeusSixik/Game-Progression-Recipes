@@ -17,7 +17,7 @@ import java.util.List;
 
 @Mixin(ComponentProcessor.class)
 public abstract class MixinComponentProcessor implements IComponent {
-    
+
     @Shadow
     private GenericTile holder;
 

@@ -7,11 +7,13 @@ import dev.sixik.gpr.api.RecipeIndex;
 import dev.sixik.gpr.api.RecipeTypeSupport;
 import dev.sixik.gpr.impl.registry.GPRRegistry;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
@@ -104,6 +106,7 @@ public class RecipeStageUtils {
             Collection<RecipeHolder<T>> original, UUID player, int predicateType
     ) {
         if(original == null) return null;
+        if(player == null) return original instanceof List ? (List<RecipeHolder<T>>) original : new ObjectArrayList<>(original);
 
         final int size = original.size();
         if (size == 0) return Collections.emptyList();
@@ -233,5 +236,23 @@ public class RecipeStageUtils {
         }
 
         return classes;
+    }
+
+    public static Player getNearestPlayer(LevelAccessor level, BlockPos pos) {
+        List<? extends Player> players = level.players();
+        if(players.isEmpty()) return null;
+        if(players.size() == 1) return players.getFirst();
+
+        Player nearestPlayer = null;
+        double minDistance = Double.MAX_VALUE;
+        for (int i = 0; i < players.size(); i++) {
+            final Player player = players.get(i);
+            final double distance = player.distanceToSqr(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestPlayer = player;
+            }
+        }
+        return nearestPlayer;
     }
 }

@@ -2,10 +2,14 @@ package dev.sixik.gpr.api;
 
 import dev.sixik.gpr.api.restriction_collector.RecipeRestrictionRawData;
 import dev.sixik.gpr.impl.registry.GPRRegistry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeType;
 
 public final class RecipeStages {
+
+    private RecipeStages() {
+    }
 
     public static void addRecipe(String stage, RecipeType<?> recipeType, String[] recipes) {
         ResourceLocation[] parsedRecipes = new ResourceLocation[recipes.length];
@@ -22,6 +26,10 @@ public final class RecipeStages {
         addRecipe(stage, recipeType, parsedRecipes);
     }
 
+    public static void addRecipe(String stage, String recipeType, String[] recipes) {
+        addRecipe(stage, resolveRecipeType(recipeType), recipes);
+    }
+
     public static void addRecipe(String stage, RecipeType<?> recipeType, ResourceLocation[] recipes) {
         if (recipeType == null) {
             throw new IllegalArgumentException("Recipe type must not be null");
@@ -36,5 +44,19 @@ public final class RecipeStages {
                         recipes
                 )
         );
+    }
+
+    public static void addRecipe(String stage, String recipeType, ResourceLocation[] recipes) {
+        addRecipe(stage, resolveRecipeType(recipeType), recipes);
+    }
+
+    public static RecipeType<?> resolveRecipeType(String recipeType) {
+        ResourceLocation recipeTypeId = ResourceLocation.tryParse(recipeType);
+        if (recipeTypeId == null) {
+            throw new IllegalArgumentException("Invalid recipe type id '" + recipeType + "'");
+        }
+
+        return BuiltInRegistries.RECIPE_TYPE.getOptional(recipeTypeId)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown recipe type '" + recipeType + "'"));
     }
 }

@@ -130,6 +130,10 @@ dependencies {
     annotationProcessor 'com.blamejared.crafttweaker:Crafttweaker_Annotation_Processors:4.0.0.21'
     annotationProcessor ctDep
 
+    def kubeJsDep = "dev.latvian.mods:kubejs-neoforge:$kubejs_version"
+    compileOnly(kubeJsDep)
+    runtimeOnly(kubeJsDep)
+
     implementation "com.github.DeusSixik:Game-Progression-Framework:${gpf_version}"
 
     compileOnly "curse.maven:assembler-table-1557940:8166561"

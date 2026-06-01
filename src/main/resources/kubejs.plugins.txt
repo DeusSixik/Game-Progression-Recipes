@@ -1,0 +1,1 @@
+dev.sixik.gpr.impl.compat.kubejs.GPRKubeJSPlugin
